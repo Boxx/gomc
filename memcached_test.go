@@ -82,6 +82,20 @@ func TestBehavior(t *testing.T) {
 	}
 }
 
+func TestGetServer(t *testing.T) {
+	cmds := start(testHosts)
+	defer stop(cmds)
+
+	mc, err := newMemcached(testHosts, ENCODING_DEFAULT)
+	if err != nil {
+		t.Error("Fail to new client:", err)
+	}
+
+	if _, err = mc.GetServerByKey("testkey"); err != nil {
+		t.Error("Failed to retrieve a server", err)
+	}
+}
+
 func TestSetGet(t *testing.T) {
 	cmds := start(testHosts)
 	defer stop(cmds)

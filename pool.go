@@ -57,6 +57,28 @@ func (self *memcachedPool) GetBehavior(behavior BehaviorType) (value uint64, err
 	return
 }
 
+func (self *memcachedPool) GetServerByKey(key string) (string, error) {
+	k, key_len := cString(key)
+	defer C.free(unsafe.Pointer(k))
+
+	conn, err := self.fetchConnection()
+	if err != nil {
+		return "", err
+	}
+	defer self.releaseConnection(conn)
+
+	ret := new(C.memcached_return_t)
+	i := C.memcached_server_by_key(conn.mc, k, key_len, ret)
+
+	if err := self.checkError(*ret); err != nil {
+		return "", err
+	}
+
+	h := C.memcached_server_name(i)
+
+	return C.GoString(h), nil
+}
+
 func (self *memcachedPool) fetchConnection() (conn *memcached, err error) {
 	ret := new(C.memcached_return_t)
 	conn = &memcached{

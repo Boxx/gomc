@@ -11,6 +11,7 @@ type Result interface {
 type Client interface {
 	SetBehavior(BehaviorType, uint64) error
 	GetBehavior(BehaviorType) (uint64, error)
+	GetServerByKey(string) (string, error)
 	GenerateHash(string) (uint32, error)
 	Increment(string, uint32) (uint64, error)
 	Decrement(string, uint32) (uint64, error)

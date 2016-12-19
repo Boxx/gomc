@@ -79,6 +79,22 @@ func (self *memcached) GetBehavior(behavior BehaviorType) (uint64, error) {
 	return uint64(C.memcached_behavior_get(self.mc, C.memcached_behavior_t(behavior))), nil
 }
 
+func (self *memcached) GetServerByKey(key string) (string, error) {
+	k, key_len := cString(key)
+	defer C.free(unsafe.Pointer(k))
+
+	ret := new(C.memcached_return_t)
+	i := C.memcached_server_by_key(self.mc, k, key_len, ret)
+
+	if err := self.checkError(*ret); err != nil {
+		return "", err
+	}
+
+	h := C.memcached_server_name(i)
+
+	return C.GoString(h), nil
+}
+
 func (self *memcached) GenerateHash(key string) (uint32, error) {
 	cs_key, key_len := cString(key)
 	defer C.free(unsafe.Pointer(cs_key))
